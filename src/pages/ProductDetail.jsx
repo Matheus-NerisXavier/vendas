@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { ArrowLeft, ShoppingCart, Video, Share2, ShieldCheck, Truck, Play, CheckCircle, ChevronLeft, ChevronRight, Bookmark } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Video, Share2, ShieldCheck, Play, Zap, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEO from '../components/SEO';
 import { trackAffiliateClick, getParameterizedLink } from '../lib/analytics';
@@ -11,6 +11,7 @@ export default function ProductDetail() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [fullscreenImage, setFullscreenImage] = useState(null);
 
   const handleAffiliateClick = () => {
     trackAffiliateClick(product.title, product.category);
@@ -71,10 +72,10 @@ export default function ProductDetail() {
     ...(product.video_url ? [{ type: 'video', url: product.video_url }] : [])
   ].filter(item => item.url);
 
-  const activeItem = mediaItems[activeIndex] || mediaItems[0];
-
   const handleNext = () => setActiveIndex((prev) => (prev + 1) % mediaItems.length);
   const handlePrev = () => setActiveIndex((prev) => (prev - 1 + mediaItems.length) % mediaItems.length);
+
+  const activeItem = mediaItems[activeIndex] || mediaItems[0];
 
   return (
     <main className="min-h-screen bg-[#080808] pt-32 pb-24 text-white font-sans">
@@ -96,7 +97,7 @@ export default function ProductDetail() {
           </Link>
         </div>
 
-        {/* INFO PRINCIPAL: Título em Arial 40px (Desktop) */}
+        {/* Título */}
         <motion.div 
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -119,19 +120,19 @@ export default function ProductDetail() {
           </h1>
         </motion.div>
 
-        {/* Layout: Galeria e Ações */}
+        {/* Layout: Galeria e Detalhes */}
         <div className="flex flex-col lg:flex-row gap-12 mb-20">
           
           {/* GALERIA */}
           <div className="flex-[7] space-y-6">
-            <div className="relative aspect-square md:aspect-[4/3] rounded-[2.5rem] bg-[#1a1a1a] border border-white/10 overflow-hidden flex items-center justify-center p-8 group shadow-2xl">
-               {/* Setas de Navegação */}
+            <div className="relative aspect-square rounded-[3rem] bg-[#0a0a0a] border border-white/5 overflow-hidden shadow-2xl flex items-center justify-center group">
+               {/* Setas */}
                {mediaItems.length > 1 && (
                  <>
-                   <button onClick={handlePrev} className="absolute left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-primary transition-all">
+                   <button onClick={handlePrev} className="absolute left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-primary transition-all opacity-0 group-hover:opacity-100">
                      <ChevronLeft size={24} />
                    </button>
-                   <button onClick={handleNext} className="absolute right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-primary transition-all">
+                   <button onClick={handleNext} className="absolute right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-primary transition-all opacity-0 group-hover:opacity-100">
                      <ChevronRight size={24} />
                    </button>
                  </>
@@ -141,28 +142,37 @@ export default function ProductDetail() {
                  {activeItem.type === 'image' ? (
                    <motion.img 
                      key={activeItem.url} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                     src={activeItem.url} alt="" className="max-w-full max-h-full object-contain"
+                     src={activeItem.url} alt="" className="max-w-full max-h-full object-contain cursor-zoom-in"
+                     onClick={() => setFullscreenImage(activeItem.url)}
                    />
                  ) : (
-                   <motion.div key="video" className="w-full h-full">
+                   <motion.div key="video" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full h-full">
                      <video src={activeItem.url} className="w-full h-full object-contain" controls autoPlay muted loop />
                    </motion.div>
                  )}
                </AnimatePresence>
+
+               {product.is_promo_of_day && (
+                <div className="absolute top-6 left-6 bg-primary/90 text-white text-[10px] font-black py-2 px-4 rounded-full shadow-neon flex items-center gap-2">
+                   <Zap size={12} fill="currentColor" /> OFERTA DO DIA
+                </div>
+               )}
             </div>
 
             {/* Miniaturas */}
             {mediaItems.length > 1 && (
-              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide justify-center">
-                {mediaItems.map((item, idx) => (
-                  <button 
-                    key={idx} onClick={() => setActiveIndex(idx)}
-                    className={`w-16 h-16 rounded-xl overflow-hidden border-2 transition-all shrink-0 ${activeIndex === idx ? "border-primary opacity-100 shadow-neon" : "border-white/10 opacity-40 hover:opacity-100"}`}
+              <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+                {mediaItems.map((item, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveIndex(i)}
+                    className={`relative flex-shrink-0 w-24 h-24 rounded-2xl overflow-hidden border-2 transition-all ${activeIndex === i ? 'border-primary scale-95 shadow-neon' : 'border-white/5 opacity-50 hover:opacity-100'}`}
                   >
-                    {item.type === 'image' ? (
-                      <img src={item.url} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full bg-primary/20 flex items-center justify-center text-primary"><Play size={20} fill="currentColor" /></div>
+                    <img src={item.url} alt="" className="w-full h-full object-cover" />
+                    {item.type === 'video' && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/40 text-white">
+                        <Play size={20} fill="currentColor" />
+                      </div>
                     )}
                   </button>
                 ))}
@@ -170,21 +180,18 @@ export default function ProductDetail() {
             )}
           </div>
 
-          {/* DETALHES & COMPRA */}
-          <div className="flex-[5] flex flex-col space-y-10">
-            <div className="p-8 rounded-[2rem] bg-white/[0.03] border border-white/10 space-y-6">
-               <div className="flex items-center gap-3">
-                  <ShieldCheck size={20} className="text-primary" />
-                  <span className="text-[10px] font-black text-white uppercase tracking-widest">Compra Segura Shopee</span>
-               </div>
-
-               {/* Descrição Justificada e Menor */}
-               <p className="text-base text-gray-200 font-light leading-relaxed text-justify italic opacity-90">
-                 "{product.description}"
+          {/* DETALHES */}
+          <div className="flex-[5] flex flex-col gap-10">
+            <div className="glass p-8 rounded-[3rem] border border-white/5 shadow-2xl space-y-6">
+               <h4 className="text-xs font-black text-primary uppercase tracking-[0.4em] italic flex items-center gap-2">
+                 <Zap size={14} fill="currentColor" /> Descrição
+               </h4>
+               <p className="text-base text-gray-200 font-light leading-relaxed text-justify opacity-90 whitespace-pre-wrap">
+                 {product.description}
                </p>
             </div>
 
-            {/* AÇÕES (Empilhadas no Mobile) */}
+            {/* Ações */}
             <div className="flex flex-col md:grid md:grid-cols-4 gap-4">
               <a 
                 href={getParameterizedLink(product.affiliate_url)} target="_blank" rel="noopener noreferrer" onClick={handleAffiliateClick}
@@ -197,22 +204,34 @@ export default function ProductDetail() {
                 className="md:col-span-1 flex items-center justify-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 py-6 rounded-[2rem] text-white transition-all active:scale-95"
               >
                 <Share2 size={24} />
-                <span className="md:hidden font-bold uppercase tracking-widest text-xs">Compartilhar</span>
               </button>
             </div>
-
-            {/* Texto Longo */}
-            {product.long_description && (
-              <div className="p-8 rounded-[2rem] bg-white/[0.01] border border-white/10">
-                <h3 className="text-primary text-[9px] font-black uppercase tracking-[0.2em] mb-4">Análise Detalhada</h3>
-                <div className="text-white/80 leading-relaxed text-sm font-light text-justify whitespace-pre-wrap">
-                  {product.long_description}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
+
+      {/* LIGHTBOX */}
+      <AnimatePresence>
+        {fullscreenImage && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4 md:p-20"
+            onClick={() => setFullscreenImage(null)}
+          >
+            <button className="absolute top-8 right-8 text-white/50 hover:text-white transition-colors">
+              <X size={32} />
+            </button>
+            <motion.img 
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.8 }}
+              src={fullscreenImage} alt="" className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl" 
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }

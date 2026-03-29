@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
-import { Plus, LogOut, Trash2, Link as LinkIcon, Image as ImageIcon, Video, CheckCircle, Users, User, UserPlus, Edit3, X, Zap } from 'lucide-react';
+import { Plus, LogOut, Trash2, Link as LinkIcon, Image as ImageIcon, Video, CheckCircle, Users, User, UserPlus, Edit3, X, Zap, AlertCircle } from 'lucide-react';
 
 const CATEGORIES = ["Eletrônicos", "Moda", "Games", "Áudio", "Casa", "Outros"];
 const AUDIENCES = [
@@ -14,10 +14,11 @@ export default function Admin() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
   const [form, setForm] = useState({
     title: "", description: "", category: "Eletrônicos", 
     target_audience: "Unissex", affiliate_url: "", 
-    image_url: "", video_url: "",
+    image_url: "", secondary_images: "", video_url: "",
     is_promo_of_day: false, is_pinned: false
   });
   const [submitting, setSubmitting] = useState(false);
@@ -42,42 +43,45 @@ export default function Admin() {
   async function handleSubmit(e) {
     e.preventDefault();
     setSubmitting(true);
+    setErrorMessage("");
     
+    // Preparando o payload para o banco
     const payload = {
        ...form,
-       long_description: form.description,
-       secondary_images: ""
+       long_description: form.description // Sincroniza a descrição para a página de detalhes
     };
 
-    if (editingId) {
-      const { error } = await supabase.from('products').update(payload).eq('id', editingId);
-      if (!error) {
+    try {
+      if (editingId) {
+        const { error } = await supabase.from('products').update(payload).eq('id', editingId);
+        if (error) throw error;
         setEditingId(null);
-        resetForm();
-        setSuccess(true);
-        setTimeout(() => setSuccess(false), 3000);
-        fetchProducts();
+      } else {
+        const { error } = await supabase.from('products').insert([payload]);
+        if (error) throw error;
       }
-    } else {
-      const { error } = await supabase.from('products').insert([payload]);
-      if (!error) {
-        resetForm();
-        setSuccess(true);
-        setTimeout(() => setSuccess(false), 3000);
-        fetchProducts();
-      }
+      
+      resetForm();
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
+      fetchProducts();
+    } catch (err) {
+      console.error("Erro no cadastro:", err);
+      setErrorMessage(err.message || "Erro ao salvar no banco. Verifique os campos.");
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitting(false);
   }
 
   function resetForm() {
     setForm({ 
       title: "", description: "", category: "Eletrônicos", 
       target_audience: "Unissex", affiliate_url: "",
-      image_url: "", video_url: "",
+      image_url: "", secondary_images: "", video_url: "",
       is_promo_of_day: false, is_pinned: false 
     });
     setEditingId(null);
+    setErrorMessage("");
   }
 
   function startEdit(p) {
@@ -89,6 +93,7 @@ export default function Admin() {
       target_audience: p.target_audience || "Unissex",
       affiliate_url: p.affiliate_url || "",
       image_url: p.image_url || "",
+      secondary_images: p.secondary_images || "",
       video_url: p.video_url || "",
       is_promo_of_day: !!p.is_promo_of_day,
       is_pinned: !!p.is_pinned
@@ -133,6 +138,13 @@ export default function Admin() {
             </div>
             
             <form onSubmit={handleSubmit} className="space-y-6">
+              {errorMessage && (
+                <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-500 text-xs font-bold animate-shake">
+                   <AlertCircle size={16} />
+                   {errorMessage}
+                </div>
+              )}
+
               <input 
                 type="text" placeholder="Nome do Produto" required
                 className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-white focus:border-primary/50 outline-none"
@@ -167,8 +179,12 @@ export default function Admin() {
                    <input type="text" placeholder="Link da Foto Principal" required className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-xs text-white outline-none focus:border-primary/50" value={form.image_url} onChange={e => setForm({...form, image_url: e.target.value})} />
                 </div>
                 <div className="relative">
-                   <Video className="absolute left-4 top-4 text-white/40" size={18} />
-                   <input type="text" placeholder="Link do Vídeo (Opcional)" className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-xs text-white outline-none focus:border-primary/50" value={form.video_url} onChange={e => setForm({...form, video_url: e.target.value})} />
+                   <ImageIcon className="absolute left-4 top-4 text-gray-500" size={18} />
+                   <input type="text" placeholder="Fotos Extras (Separe por vírgula ,)" className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-xs text-white outline-none focus:border-primary/50" value={form.secondary_images} onChange={e => setForm({...form, secondary_images: e.target.value})} />
+                </div>
+                <div className="relative">
+                   <Video className="absolute left-4 top-4 text-gray-500" size={18} />
+                   <input type="text" placeholder="Link do Vídeo MP4 (Opcional)" className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-xs text-white outline-none focus:border-primary/50" value={form.video_url} onChange={e => setForm({...form, video_url: e.target.value})} />
                 </div>
                 <div className="relative">
                    <LinkIcon className="absolute left-4 top-4 text-primary" size={18} />
@@ -213,7 +229,12 @@ export default function Admin() {
                 <div className="flex items-center gap-6 min-w-0">
                   <div className="relative">
                     <img src={p.image_url} alt="" className="w-20 h-20 rounded-2xl object-cover bg-white/5 shadow-2xl" />
-                    {p.video_url && <div className="absolute -top-2 -right-2 bg-primary p-1 rounded-full text-white shadow-neon"><Video size={12} /></div>}
+                    {(p.video_url || (p.secondary_images && p.secondary_images.length > 0)) && (
+                      <div className="absolute -top-2 -right-2 bg-primary p-1 rounded-full text-white shadow-neon flex items-center gap-1">
+                        {p.video_url && <Video size={10} />}
+                        {p.secondary_images && <ImageIcon size={10} />}
+                      </div>
+                    )}
                   </div>
                   <div className="min-w-0">
                     <h4 className="text-white font-black truncate text-base uppercase tracking-tight">{p.title}</h4>
