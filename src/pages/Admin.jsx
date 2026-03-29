@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
-import { Plus, LogOut, Trash2, Link as LinkIcon, CheckCircle, Users, User, UserPlus, Edit3, X, Zap } from 'lucide-react';
+import { Plus, LogOut, Trash2, Link as LinkIcon, Image as ImageIcon, Video, CheckCircle, Users, User, UserPlus, Edit3, X, Zap } from 'lucide-react';
 
 const CATEGORIES = ["Eletrônicos", "Moda", "Games", "Áudio", "Casa", "Outros"];
 const AUDIENCES = [
@@ -17,7 +17,7 @@ export default function Admin() {
   const [form, setForm] = useState({
     title: "", description: "", category: "Eletrônicos", 
     target_audience: "Unissex", affiliate_url: "", 
-    image_url: "https://via.placeholder.com/300", // placeholder inicial ou gerado auto
+    image_url: "", video_url: "",
     is_promo_of_day: false, is_pinned: false
   });
   const [submitting, setSubmitting] = useState(false);
@@ -39,23 +39,14 @@ export default function Admin() {
     setLoading(false);
   }
 
-  // Tenta "chutar" uma imagem ou usar uma lógica de discovery futuramente
-  const handleAutoDiscovery = (url) => {
-    // Aqui no futuro podemos integrar com a API do bot para pegar a imagem real da Shopee
-    // Por hora, apenas mantemos o link
-    setForm(prev => ({ ...prev, affiliate_url: url }));
-  }
-
   async function handleSubmit(e) {
     e.preventDefault();
     setSubmitting(true);
     
-    // Payload simplificado (os outros campos no banco ficam default/null)
     const payload = {
        ...form,
-       long_description: form.description, // Duplicamos para não quebrar a UI da PDP
-       secondary_images: "",
-       video_url: ""
+       long_description: form.description,
+       secondary_images: ""
     };
 
     if (editingId) {
@@ -83,7 +74,7 @@ export default function Admin() {
     setForm({ 
       title: "", description: "", category: "Eletrônicos", 
       target_audience: "Unissex", affiliate_url: "",
-      image_url: "https://via.placeholder.com/300",
+      image_url: "", video_url: "",
       is_promo_of_day: false, is_pinned: false 
     });
     setEditingId(null);
@@ -97,7 +88,8 @@ export default function Admin() {
       category: p.category || "Eletrônicos",
       target_audience: p.target_audience || "Unissex",
       affiliate_url: p.affiliate_url || "",
-      image_url: p.image_url || "https://via.placeholder.com/300",
+      image_url: p.image_url || "",
+      video_url: p.video_url || "",
       is_promo_of_day: !!p.is_promo_of_day,
       is_pinned: !!p.is_pinned
     });
@@ -118,7 +110,7 @@ export default function Admin() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <header className="flex justify-between items-center mb-12">
+      <header className="flex justify-between items-center mb-12 border-b border-white/5 pb-8">
         <h2 className="text-3xl font-black text-white italic uppercase tracking-tighter">
           PAINEL <span className="text-primary">ADMIN</span>
         </h2>
@@ -128,7 +120,6 @@ export default function Admin() {
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        {/* Formulário EXPRESS */}
         <div className="lg:col-span-1">
           <div className="glass p-8 rounded-[2rem] border-white/5 sticky top-24 shadow-2xl">
             <div className="flex items-center justify-between mb-8">
@@ -137,13 +128,13 @@ export default function Admin() {
                  {editingId ? "Editar" : "Express Post"}
                </h3>
                {editingId && (
-                 <button onClick={resetForm} className="text-gray-500 hover:text-white"><X size={20} /></button>
+                 <button onClick={resetForm} className="text-gray-500 hover:text-white transition-all"><X size={20} /></button>
                )}
             </div>
             
             <form onSubmit={handleSubmit} className="space-y-6">
               <input 
-                type="text" placeholder="Nome do Produto (Ex: Drone K9)" required
+                type="text" placeholder="Nome do Produto" required
                 className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-white focus:border-primary/50 outline-none"
                 value={form.title} onChange={e => setForm({...form, title: e.target.value})}
               />
@@ -165,18 +156,24 @@ export default function Admin() {
               </div>
 
               <textarea 
-                placeholder="O que achou desse item? (Descrição Geral)" rows="4"
+                placeholder="Descrição (O que achou do item?)" rows="3"
                 className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-white focus:border-primary/50 outline-none"
                 value={form.description} onChange={e => setForm({...form, description: e.target.value})}
               />
               
-              <div className="relative">
-                 <LinkIcon className="absolute left-4 top-4 text-primary" size={18} />
-                 <input 
-                   type="text" placeholder="Link (Shopee/Afiliado)" required 
-                   className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-xs text-white outline-none focus:border-primary/50" 
-                   value={form.affiliate_url} onChange={e => handleAutoDiscovery(e.target.value)} 
-                 />
+              <div className="space-y-3">
+                <div className="relative">
+                   <ImageIcon className="absolute left-4 top-4 text-white/40" size={18} />
+                   <input type="text" placeholder="Link da Foto Principal" required className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-xs text-white outline-none focus:border-primary/50" value={form.image_url} onChange={e => setForm({...form, image_url: e.target.value})} />
+                </div>
+                <div className="relative">
+                   <Video className="absolute left-4 top-4 text-white/40" size={18} />
+                   <input type="text" placeholder="Link do Vídeo (Opcional)" className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-xs text-white outline-none focus:border-primary/50" value={form.video_url} onChange={e => setForm({...form, video_url: e.target.value})} />
+                </div>
+                <div className="relative">
+                   <LinkIcon className="absolute left-4 top-4 text-primary" size={18} />
+                   <input type="text" placeholder="Link de Afiliado" required className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-xs text-white outline-none focus:border-primary/50" value={form.affiliate_url} onChange={e => setForm({...form, affiliate_url: e.target.value})} />
+                </div>
               </div>
 
               <div className="flex gap-4">
@@ -207,7 +204,6 @@ export default function Admin() {
           </div>
         </div>
 
-        {/* Lista Minimalista */}
         <div className="lg:col-span-2 space-y-4">
           <h3 className="text-xl font-bold text-white mb-6 uppercase italic tracking-tighter">Seus Achadinhos ({products.length})</h3>
           
@@ -215,7 +211,10 @@ export default function Admin() {
             products.map(p => (
               <div key={p.id} className={`glass p-5 rounded-[2rem] border transition-all flex items-center justify-between gap-6 group ${editingId === p.id ? "border-secondary/50 bg-secondary/5" : "border-white/5 hover:border-white/20"}`}>
                 <div className="flex items-center gap-6 min-w-0">
-                  <img src={p.image_url} alt="" className="w-20 h-20 rounded-2xl object-cover bg-white/5 shadow-2xl" />
+                  <div className="relative">
+                    <img src={p.image_url} alt="" className="w-20 h-20 rounded-2xl object-cover bg-white/5 shadow-2xl" />
+                    {p.video_url && <div className="absolute -top-2 -right-2 bg-primary p-1 rounded-full text-white shadow-neon"><Video size={12} /></div>}
+                  </div>
                   <div className="min-w-0">
                     <h4 className="text-white font-black truncate text-base uppercase tracking-tight">{p.title}</h4>
                     <div className="flex items-center gap-3 mt-2">
