@@ -11,6 +11,23 @@
   --font-serif: "Instrument Serif", serif;
 }
 
+.mask-fade-bottom {
+  mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+}
+
+.mask-none {
+  mask-image: none !important;
+  -webkit-mask-image: none !important;
+}
+
+@media (max-width: 1023px) {
+  .mask-fade-mobile {
+    mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+  }
+}
+
 @layer base {
   body {
     @apply bg-[#050505] text-white antialiased;

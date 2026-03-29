@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { ArrowLeft, ShoppingCart, Video, Share2, ShieldCheck, Play, Zap, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Video, Share2, ShieldCheck, Play, Zap, ChevronLeft, ChevronRight, X, Users } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEO from '../components/SEO';
 import { trackAffiliateClick, getParameterizedLink } from '../lib/analytics';
@@ -12,6 +12,7 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const [fullscreenImage, setFullscreenImage] = useState(null);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   const handleAffiliateClick = () => {
     trackAffiliateClick(product.title, product.category);
@@ -97,7 +98,7 @@ export default function ProductDetail() {
           </Link>
         </div>
 
-        {/* Título */}
+        {/* Hero Título */}
         <motion.div 
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -121,12 +122,11 @@ export default function ProductDetail() {
         </motion.div>
 
         {/* Layout: Galeria e Detalhes */}
-        <div className="flex flex-col lg:flex-row gap-12 mb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-20">
           
-          {/* GALERIA */}
-          <div className="flex-[7] space-y-6">
+          {/* GALERIA (Esquerda) */}
+          <div className="lg:col-span-7 space-y-6">
             <div className="relative aspect-square rounded-[3rem] bg-[#0a0a0a] border border-white/5 overflow-hidden shadow-2xl flex items-center justify-center group">
-               {/* Setas */}
                {mediaItems.length > 1 && (
                  <>
                    <button onClick={handlePrev} className="absolute left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-primary transition-all opacity-0 group-hover:opacity-100">
@@ -141,8 +141,8 @@ export default function ProductDetail() {
                <AnimatePresence mode="wait">
                  {activeItem.type === 'image' ? (
                    <motion.img 
-                     key={activeItem.url} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                     src={activeItem.url} alt="" className="max-w-full max-h-full object-contain cursor-zoom-in"
+                     key={activeItem.url} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+                     src={activeItem.url} alt="" className="max-w-[85%] max-h-[85%] object-contain cursor-zoom-in transition-transform duration-500 hover:scale-110"
                      onClick={() => setFullscreenImage(activeItem.url)}
                    />
                  ) : (
@@ -161,17 +161,17 @@ export default function ProductDetail() {
 
             {/* Miniaturas */}
             {mediaItems.length > 1 && (
-              <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+              <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide justify-center">
                 {mediaItems.map((item, i) => (
                   <button
                     key={i}
                     onClick={() => setActiveIndex(i)}
-                    className={`relative flex-shrink-0 w-24 h-24 rounded-2xl overflow-hidden border-2 transition-all ${activeIndex === i ? 'border-primary scale-95 shadow-neon' : 'border-white/5 opacity-50 hover:opacity-100'}`}
+                    className={`relative flex-shrink-0 w-20 h-20 rounded-2xl overflow-hidden border-2 transition-all ${activeIndex === i ? 'border-primary scale-95 shadow-neon' : 'border-white/5 opacity-40 hover:opacity-100'}`}
                   >
                     <img src={item.url} alt="" className="w-full h-full object-cover" />
                     {item.type === 'video' && (
                       <div className="absolute inset-0 flex items-center justify-center bg-black/40 text-white">
-                        <Play size={20} fill="currentColor" />
+                        <Play size={16} fill="currentColor" />
                       </div>
                     )}
                   </button>
@@ -180,31 +180,58 @@ export default function ProductDetail() {
             )}
           </div>
 
-          {/* DETALHES */}
-          <div className="flex-[5] flex flex-col gap-10">
-            <div className="glass p-8 rounded-[3rem] border border-white/5 shadow-2xl space-y-6">
-               <h4 className="text-xs font-black text-primary uppercase tracking-[0.4em] italic flex items-center gap-2">
-                 <Zap size={14} fill="currentColor" /> Descrição
-               </h4>
-               <p className="text-base text-gray-200 font-light leading-relaxed text-justify opacity-90 whitespace-pre-wrap">
-                 {product.description}
-               </p>
+          {/* AÇÕES E DESCR (Direita) */}
+          <div className="lg:col-span-5 flex flex-col gap-8">
+            <div className="flex items-center gap-4">
+               <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/5">
+                  <ShieldCheck size={16} className="text-primary" />
+                  <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">Verificado</span>
+               </div>
+               <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/5">
+                  <Users size={16} className="text-gray-400" />
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{product.target_audience || 'Unissex'}</span>
+               </div>
             </div>
 
-            {/* Ações */}
-            <div className="flex flex-col md:grid md:grid-cols-4 gap-4">
+            {/* BOTÕES DE AÇÃO (PROEMINENTES) */}
+            <div className="flex flex-col gap-4 lg:mt-12">
               <a 
                 href={getParameterizedLink(product.affiliate_url)} target="_blank" rel="noopener noreferrer" onClick={handleAffiliateClick}
-                className="md:col-span-3 flex items-center justify-center gap-4 vibrant-gradient py-6 rounded-[2rem] text-lg font-black text-white shadow-neon hover:scale-[1.02] active:scale-95 transition-all uppercase italic tracking-widest"
+                className="group flex items-center justify-center gap-4 vibrant-gradient py-8 rounded-[2.5rem] text-xl font-black text-white shadow-neon hover:scale-[1.02] active:scale-95 transition-all uppercase italic tracking-widest"
               >
-                <ShoppingCart size={24} /> Eu Quero Já!
+                <ShoppingCart size={28} /> Eu Quero Já!
               </a>
               <button 
                 onClick={handleShare} 
-                className="md:col-span-1 flex items-center justify-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 py-6 rounded-[2rem] text-white transition-all active:scale-95"
+                className="flex items-center justify-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 py-6 rounded-[2rem] text-white transition-all active:scale-95 group"
               >
                 <Share2 size={24} />
+                <span className="font-black uppercase tracking-widest text-[10px]">Compartilhar</span>
               </button>
+            </div>
+          </div>
+
+          {/* DESCRIÇÃO - LARGURA TOTAL NO DESKTOP */}
+          <div className="lg:col-span-12">
+            <div className="glass p-8 md:p-12 rounded-[3rem] border border-white/5 shadow-2xl relative">
+               <h4 className="text-xs font-black text-primary uppercase tracking-[0.4em] italic flex items-center gap-2 mb-8">
+                 <Zap size={14} fill="currentColor" /> Descrição do Produto
+               </h4>
+               
+               <div className={`text-base md:text-lg text-white font-medium leading-[1.8] text-justify opacity-100 whitespace-pre-line ${!isDescriptionExpanded ? 'max-h-48 overflow-hidden mask-fade-mobile lg:max-h-none lg:overflow-visible' : 'max-h-none overflow-visible'}`}>
+                 {product.description}
+               </div>
+
+               <div className="lg:hidden">
+                 {product.description.length > 200 && (
+                   <button 
+                     onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                     className="mt-8 text-[11px] font-black text-primary hover:text-white uppercase tracking-widest flex items-center gap-2 transition-all active:scale-95"
+                   >
+                     {isDescriptionExpanded ? "Ver Menos ☝️" : "Ler Tudo 👇"}
+                   </button>
+                 )}
+               </div>
             </div>
           </div>
         </div>
@@ -231,7 +258,7 @@ export default function ProductDetail() {
             />
           </motion.div>
         )}
-      </AnimatePresence>
+       </AnimatePresence>
     </main>
   );
 }
