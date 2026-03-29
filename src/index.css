@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #ff6b00;
+  --color-secondary: #7000ff;
+  --color-accent: #00f0ff;
+  --color-vibrant-pink: #ff007f;
+  --color-primary-glow: rgba(255, 107, 0, 0.4);
+  
+  --font-sans: "Outfit", sans-serif;
+  --font-serif: "Instrument Serif", serif;
+}
+
+@layer base {
+  body {
+    @apply bg-[#050505] text-white antialiased;
+    font-family: var(--font-sans);
+  }
+}
+
+.glass {
+  @apply bg-white/5 backdrop-blur-lg border border-white/10;
+}
+
+.vibrant-gradient {
+  @apply bg-gradient-to-br from-primary via-vibrant-pink to-secondary;
+}
