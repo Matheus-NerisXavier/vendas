@@ -26,3 +26,14 @@ export const trackVideoClick = (productTitle) => {
     event_label: `Vídeo: ${productTitle}`
   });
 };
+
+// Adiciona parâmetros de rastreio automaticamente aos links
+export const getParameterizedLink = (url) => {
+  if (!url || url === '#') return '#';
+  try {
+    const trackingParam = 'utm_source=buscafinder&utm_medium=site_vendas';
+    return url.includes('?') ? `${url}&${trackingParam}` : `${url}?${trackingParam}`;
+  } catch (e) {
+    return url;
+  }
+};

@@ -9,8 +9,8 @@ export default function Admin() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({
-    title: "", description: "", category: "Eletrônicos", 
-    image_url: "", affiliate_url: "", video_url: "", 
+    title: "", description: "", long_description: "", category: "Eletrônicos", 
+    image_url: "", secondary_images: "", affiliate_url: "", video_url: "", 
     is_promo_of_day: false, is_pinned: false
   });
   const [submitting, setSubmitting] = useState(false);
@@ -38,8 +38,8 @@ export default function Admin() {
     const { error } = await supabase.from('products').insert([form]);
     if (!error) {
       setForm({ 
-        title: "", description: "", category: "Eletrônicos", 
-        image_url: "", affiliate_url: "", video_url: "", 
+        title: "", description: "", long_description: "", category: "Eletrônicos", 
+        image_url: "", secondary_images: "", affiliate_url: "", video_url: "", 
         is_promo_of_day: false, is_pinned: false 
       });
       setSuccess(true);
@@ -87,9 +87,14 @@ export default function Admin() {
                 value={form.title} onChange={e => setForm({...form, title: e.target.value})}
               />
               <textarea 
-                placeholder="Descrição/Review" rows="3"
+                placeholder="Descrição Curta (para o Card)" rows="2"
                 className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white focus:border-primary/50 outline-none"
                 value={form.description} onChange={e => setForm({...form, description: e.target.value})}
+              />
+              <textarea 
+                placeholder="Descrição Detalhada / Review Completo" rows="5"
+                className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white focus:border-primary/50 outline-none"
+                value={form.long_description} onChange={e => setForm({...form, long_description: e.target.value})}
               />
               <select 
                 className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-white focus:border-primary/50 outline-none"
@@ -100,8 +105,12 @@ export default function Admin() {
               
               <div className="space-y-3">
                 <div className="relative">
+                   <ImageIcon className="absolute left-3 top-3 text-white" size={16} />
+                   <input type="text" placeholder="URL da Imagem Principal" required className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-3 text-xs text-white outline-none" value={form.image_url} onChange={e => setForm({...form, image_url: e.target.value})} />
+                </div>
+                <div className="relative">
                    <ImageIcon className="absolute left-3 top-3 text-gray-500" size={16} />
-                   <input type="text" placeholder="URL da Imagem" className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-3 text-xs text-white outline-none" value={form.image_url} onChange={e => setForm({...form, image_url: e.target.value})} />
+                   <input type="text" placeholder="Fotos Extras (URLs separadas por vírgula)" className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-3 text-xs text-white outline-none" value={form.secondary_images} onChange={e => setForm({...form, secondary_images: e.target.value})} />
                 </div>
                 <div className="relative">
                    <LinkIcon className="absolute left-3 top-3 text-gray-500" size={16} />

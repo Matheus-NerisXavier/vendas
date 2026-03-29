@@ -55,8 +55,8 @@ export default function Home({ products }) {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-white to-secondary font-['Instrument_Serif'] not-italic lowercase tracking-normal">começa aqui.</span>
             </h2>
             
-            <p className="mt-8 text-gray-500 text-lg md:text-xl font-light leading-relaxed max-w-sm mx-auto md:mx-0">
-              Curadoria manual dos itens mais desejados da internet. Economia real <span className="text-white border-b border-primary/20">todos os dias.</span>
+            <p className="mt-8 text-gray-200 text-lg md:text-xl font-light leading-relaxed max-w-sm mx-auto md:mx-0 opacity-100">
+              Curadoria manual dos itens mais desejados da internet. Economia real <span className="text-white border-b border-white/20 font-bold">todos os dias.</span>
             </p>
 
             <div className="mt-12">
@@ -77,9 +77,13 @@ export default function Home({ products }) {
                     key={p.id}
                     animate={{ y: [0, i % 2 === 0 ? -20 : 20, 0] }}
                     transition={{ duration: 5, repeat: Infinity, delay: i * 0.4 }}
-                    className="w-32 h-32 rounded-[2.5rem] bg-[#1a1a1a] border border-white/10 p-4 shadow-2xl transition-all hover:border-primary/50 group"
                   >
-                    <img src={p.image_url} alt="" className="w-full h-full object-contain group-hover:scale-110 transition-transform" />
+                    <Link 
+                      to={`/p/${p.id}`}
+                      className="block w-32 h-32 rounded-[2.5rem] bg-[#1a1a1a] border border-white/10 p-4 shadow-2xl transition-all hover:border-primary/50 hover:scale-110 group"
+                    >
+                      <img src={p.image_url} alt="" className="w-full h-full object-contain transition-transform" />
+                    </Link>
                   </motion.div>
                 ))}
              </div>
