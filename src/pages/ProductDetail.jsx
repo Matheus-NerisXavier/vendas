@@ -79,7 +79,7 @@ export default function ProductDetail() {
   const activeItem = mediaItems[activeIndex] || mediaItems[0];
 
   return (
-    <main className="min-h-screen bg-[#080808] pt-32 pb-24 text-white font-sans">
+    <main className="min-h-screen bg-[#080808] pt-6 lg:pt-8 pb-8 lg:pb-16 text-white font-sans">
       <SEO 
         title={product.title} 
         description={product.description} 
@@ -89,7 +89,7 @@ export default function ProductDetail() {
 
       <div className="container mx-auto px-6 max-w-6xl">
         {/* Navegação Topo */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-6 lg:mb-8">
           <Link to="/" className="inline-flex items-center gap-3 text-gray-400 hover:text-white transition-all group">
             <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-primary/20 transition-all">
                <ArrowLeft size={16} />
@@ -102,9 +102,9 @@ export default function ProductDetail() {
         <motion.div 
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-12 max-w-5xl mx-auto lg:text-center"
+          className="mb-8 lg:mb-10 max-w-5xl mx-auto lg:text-center"
         >
-          <div className="flex flex-wrap lg:justify-center gap-3 mb-6">
+          <div className="flex flex-wrap lg:justify-center gap-2 lg:gap-3 mb-4 lg:mb-6">
              <span className="px-3 py-1 bg-primary/20 text-primary text-[9px] font-black uppercase tracking-widest rounded-md border border-primary/20">
                 {product.category}
              </span>
@@ -122,7 +122,7 @@ export default function ProductDetail() {
         </motion.div>
 
         {/* Layout: Galeria e Detalhes */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-12">
           
           {/* GALERIA (Esquerda) */}
           <div className="lg:col-span-7 space-y-6">
