@@ -58,7 +58,7 @@ function App() {
 
   return (
     <Router>
-      <div className="min-h-screen pb-20 bg-[#08060d] text-gray-100 font-['Outfit']">
+      <div className="min-h-screen bg-[#08060d] text-gray-100 font-['Outfit']">
         <Routes>
           <Route path="/" element={
             <>
@@ -82,7 +82,7 @@ function App() {
           <Route path="/admin" element={session ? <Admin /> : <Navigate to="/login" />} />
         </Routes>
 
-        <footer className="mt-20 py-10 border-t border-white/5 text-center text-gray-500 text-sm">
+        <footer className="mt-0 py-8 px-6 border-t border-white/5 text-center text-white/90 text-[10px] uppercase tracking-[0.4em]">
           <p>© 2026 Busca Finder - As melhores ofertas da Shopee separadas para você.</p>
         </footer>
       </div>

@@ -79,7 +79,7 @@ export default function ProductDetail() {
   const activeItem = mediaItems[activeIndex] || mediaItems[0];
 
   return (
-    <main className="min-h-screen bg-[#080808] pt-6 lg:pt-8 pb-8 lg:pb-16 text-white font-sans">
+    <main className="min-h-screen bg-[#080808] pt-2 lg:pt-6 pb-2 lg:pb-4 text-white font-sans">
       <SEO 
         title={product.title} 
         description={product.description} 
@@ -89,12 +89,12 @@ export default function ProductDetail() {
 
       <div className="container mx-auto px-6 max-w-6xl">
         {/* Navegação Topo */}
-        <div className="flex items-center justify-between mb-6 lg:mb-8">
+        <div className="flex items-center justify-between mb-4 lg:mb-6">
           <Link to="/" className="inline-flex items-center gap-3 text-gray-400 hover:text-white transition-all group">
-            <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-primary/20 transition-all">
-               <ArrowLeft size={16} />
+            <div className="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-primary/20 transition-all">
+               <ArrowLeft size={14} />
             </div>
-            <span className="text-[10px] font-bold uppercase tracking-widest">Ver mais ofertas</span>
+            <span className="text-[9px] font-bold uppercase tracking-widest">Ver mais ofertas</span>
           </Link>
         </div>
 
@@ -102,7 +102,7 @@ export default function ProductDetail() {
         <motion.div 
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8 lg:mb-10 max-w-5xl mx-auto lg:text-center"
+          className="mb-6 lg:mb-10 max-w-5xl mx-auto lg:text-center"
         >
           <div className="flex flex-wrap lg:justify-center gap-2 lg:gap-3 mb-4 lg:mb-6">
              <span className="px-3 py-1 bg-primary/20 text-primary text-[9px] font-black uppercase tracking-widest rounded-md border border-primary/20">
